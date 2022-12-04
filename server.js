@@ -206,7 +206,7 @@ app.delete("/deletecourse", (req, res) => {
         if (lesson.length) {
           const deletedCourses = lesson.map((course) => course.course);
           const courses = { "courses": deletedCourses};
-					res.json(courses);
+					res.status(200).json(courses);
 				} else {
 					res.status(400).json("not found");
 				}
