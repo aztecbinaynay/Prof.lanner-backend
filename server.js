@@ -141,6 +141,18 @@ app.get("/courses/:email", (req, res) => {
 	// cannot use .catch() here to catch any errors because the .then() returns an empty array even when no user is present. It doesn't actually throw any error.
 });
 
+//todo: get the associated courseplanner rows for the relevant course using id
+app.get("/course/:id", (req, res) => {
+  const { id } = req.params;
+  // console.log(id);
+  db.select("weeks", "ilos", "tlas", "ats", "topics", "remarks")
+    .from("courseplanner")
+    .where({id})
+		.then((data) => {
+			res.json(data);
+		});
+});
+
 //todo: /createlesson -> post = lesson
 app.post("/createlesson", (req, res) => {
 	const { sem, year, courseName, mod, lab, lec, startDate, email } = req.body;
