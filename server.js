@@ -147,7 +147,8 @@ app.get("/course/lessonplanner/:id", (req, res) => {
   // console.log(id);
   db.select("weeks", "ilos", "tlas", "ats", "topics", "remarks")
     .from("courseplanner")
-    .where({id})
+    .where({ id })
+    .orderBy("weeks", "asc")
 		.then((data) => {
 			res.json(data);
 		});
