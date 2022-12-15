@@ -142,7 +142,7 @@ app.get("/courses/:email", (req, res) => {
 });
 
 //todo: get the associated courseplanner rows for the relevant course using id
-app.get("/course/:id", (req, res) => {
+app.get("/course/lessonplanner/:id", (req, res) => {
   const { id } = req.params;
   // console.log(id);
   db.select("weeks", "ilos", "tlas", "ats", "topics", "remarks")
