@@ -136,7 +136,7 @@ app.get("/courses/:email", (req, res) => {
 		.from("courseslist")
 		.where({ email })
 		.then((courses) => {
-				res.json(courses);
+			res.json(courses);
 		});
 	// cannot use .catch() here to catch any errors because the .then() returns an empty array even when no user is present. It doesn't actually throw any error.
 });
@@ -157,10 +157,10 @@ app.post("/createlesson", (req, res) => {
 		) {
 			return res.status(400).json("all fields are required");
 		}
-  } catch (error) {
-    console.log(error)
-    res.status(400).json("all fields cannot be empty or undefined");
-  }
+	} catch (error) {
+		console.log(error);
+		res.status(400).json("all fields cannot be empty or undefined");
+	}
 	db.transaction((trx) => {
 		trx
 			.insert({
@@ -176,8 +176,49 @@ app.post("/createlesson", (req, res) => {
 			})
 			.into("courseslist")
 			.returning("*")
-			.then((lesson) => {
-				res.json(lesson[0]);
+      .then((lesson) => {
+        if (lesson[0].modularity === "modular") {
+					for (let i = 1; i < 7; i++) {
+						db.insert({
+							ilos: [],
+							tlas: [],
+							ats: [],
+							topics: [],
+							remarks: [],
+							id: lesson[0].id,
+							weeks: i,
+							course: lesson[0].course,
+							email: lesson[0].email,
+						})
+							.returning("*")
+							.into("courseplanner")
+							.catch((err) => {
+								console.log(err);
+								res.status(400).json("unable to create lesson");
+							});
+          }
+				} else if (lesson[0].modularity === "full") {
+					for (let i = 1; i < 19; i++) {
+						db.insert({
+							ilos: [],
+							tlas: [],
+							ats: [],
+							topics: [],
+							remarks: [],
+							id: lesson[0].id,
+							weeks: i,
+							course: lesson[0].course,
+							email: lesson[0].email,
+						})
+							.returning("*")
+							.into("courseplanner")
+							.catch((err) => {
+								console.log(err);
+								res.status(400).json("unable to create lesson");
+							});
+          }
+        }
+        res.json(lesson[0]);
 			})
 			.then(trx.commit)
 			.catch((err) => trx.rollback);
@@ -186,44 +227,43 @@ app.post("/createlesson", (req, res) => {
 
 //todo: /deletelesson -> delete lesson and return which lessons were deleted as JSPON
 app.delete("/deletecourse", (req, res) => {
-	const { id , email } = req.body;
-  try {
-    if (id.length === 0) {
-      return res.status(400).json("no courses selected");
-    }
-  }catch (error) {
-    console.log(error)
-    res.status(400).json("no courses selected");
-  }
-  db.transaction((trx) => {
-    trx
-      .delete()
-      .from("courseslist")
-      .whereIn("id", id)
-      .andWhere("email", email)
-      .returning("course")
-      .then((lesson) => {
-        if (lesson.length) {
-          const deletedCourses = lesson.map((course) => course.course);
-          const courses = { "courses": deletedCourses};
+	const { id, email } = req.body;
+	try {
+		if (id.length === 0) {
+			return res.status(400).json("no courses selected");
+		}
+	} catch (error) {
+		console.log(error);
+		res.status(400).json("no courses selected");
+	}
+	db.transaction((trx) => {
+		trx
+			.delete()
+			.from("courseslist")
+			.whereIn("id", id)
+			.andWhere("email", email)
+			.returning("course")
+			.then((lesson) => {
+				if (lesson.length) {
+					const deletedCourses = lesson.map((course) => course.course);
+					const courses = { courses: deletedCourses };
 					res.status(200).json(courses);
 				} else {
 					res.status(400).json("not found");
 				}
-      }
-    )
-      .then(trx.commit)
-      .catch((err) => trx.rollback);
-  }).catch((err) => res.status(400).json("unable to delete lesson"));
+			})
+			.then(trx.commit)
+			.catch((err) => trx.rollback);
+	}).catch((err) => res.status(400).json("unable to delete lesson"));
 });
 
 //todo: /modal/courses
 app.get("/modal/courses", (req, res) => {
-  db.select("course")
-    .from("coursescodes")
-    .then((courses) => {
-      res.json(courses);
-    });
+	db.select("*")
+		.from("coursescodes")
+		.then((courses) => {
+			res.json(courses);
+		});
 });
 
 //todo: /image -> put -> user
@@ -245,9 +285,150 @@ app.get("/modal/courses", (req, res) => {
 // 		.catch((err) => res.status(400).json("connection failed"));
 // });
 
-
 //todo: assign a port to the server and cosnole a message if the server is running.
 
 app.listen(6060, () => {
 	console.log("Server is running on port 6060", new Date());
 });
+
+//! Backup!
+// //todo: /createlesson -> post = lesson
+// app.post("/createlesson", (req, res) => {
+// 	const { sem, year, courseName, mod, lab, lec, startDate, email } = req.body;
+// 	try {
+// 		if (
+// 			sem.length == 0 ||
+// 			year.length == 0 ||
+// 			courseName.length == 0 ||
+// 			mod.length == 0 ||
+// 			lab.length == 0 ||
+// 			lec.length == 0 ||
+// 			startDate.length == 0 ||
+// 			email.length == 0
+// 		) {
+// 			return res.status(400).json("all fields are required");
+// 		}
+//   } catch (error) {
+//     console.log(error)
+//     res.status(400).json("all fields cannot be empty or undefined");
+//   }
+// 	db.transaction((trx) => {
+// 		trx
+// 			.insert({
+// 				gradingsem: sem,
+// 				gradingyear: year,
+// 				course: courseName,
+// 				modularity: mod,
+// 				labhrs: lab,
+// 				lechrs: lec,
+// 				date_start: startDate,
+// 				date_initial: new Date(),
+// 				email: email,
+// 			})
+// 			.into("courseslist")
+// 			.returning("*")
+// 			.then((lesson) => {
+// 				res.json(lesson[0]);
+// 			})
+// 			.then(trx.commit)
+// 			.catch((err) => trx.rollback);
+// 	}).catch((err) => res.status(400).json("unable to create lesson"));
+// });
+
+
+//-------------
+// //todo: /createlesson -> post = lesson
+// app.post("/createlesson", (req, res) => {
+// 	const { sem, year, courseName, mod, lab, lec, startDate, email } = req.body;
+// 	try {
+// 		if (
+// 			sem.length == 0 ||
+// 			year.length == 0 ||
+// 			courseName.length == 0 ||
+// 			mod.length == 0 ||
+// 			lab.length == 0 ||
+// 			lec.length == 0 ||
+// 			startDate.length == 0 ||
+// 			email.length == 0
+// 		) {
+// 			return res.status(400).json("all fields are required");
+// 		}
+// 	} catch (error) {
+// 		console.log(error);
+// 		res.status(400).json("all fields cannot be empty or undefined");
+// 	}
+// 	db.transaction((trx) => {
+// 		trx
+// 			.insert({
+// 				gradingsem: sem,
+// 				gradingyear: year,
+// 				course: courseName,
+// 				modularity: mod,
+// 				labhrs: lab,
+// 				lechrs: lec,
+// 				date_start: startDate,
+// 				date_initial: new Date(),
+// 				email: email,
+// 			})
+// 			.into("courseslist")
+// 			.returning("*")
+// 			.then((lesson) => {
+//         if (lesson[0].modularity === "modular") {
+//           const datas = [];
+// 					for (let i = 1; i < 7; i++) {
+// 						return trx("courseplanner")
+// 							.returning("*")
+// 							.insert({
+// 								ilos: [],
+// 								tlas: [],
+// 								ats: [],
+// 								topics: [],
+// 								remarks: [],
+// 								id: lesson[0].id,
+// 								weeks: i,
+// 								course: lesson[0].course,
+// 								email: lesson[0].email,
+// 							})
+//               .then((data) => {
+//                 console.log(data);
+// 								datas.push(data);
+// 							})
+// 							.catch((err) => {
+// 								console.log(err);
+// 								res.status(400).json("unable to create lesson");
+// 							});
+//           }
+//           res.status(200).json(datas);
+// 				} else if (lesson[0].modularity === "full") {
+// 					const datas = [];
+// 					for (let i = 1; i < 19; i++) {
+// 						return trx("courseplanner")
+// 							.returning("*")
+// 							.insert({
+// 								ilos: [],
+// 								tlas: [],
+// 								ats: [],
+// 								topics: [],
+// 								remarks: [],
+// 								id: lesson[0].id,
+// 								weeks: i,
+// 								course: lesson[0].course,
+// 								email: lesson[0].email,
+// 							})
+//               .then((data) => {
+//                 console.log(data);
+// 								datas.push(data);
+// 							})
+// 							.catch((err) => {
+// 								console.log(err);
+// 								res.status(400).json("unable to create lesson");
+// 							});
+// 					}
+// 					res.status(200).json(datas);
+//         }
+//         res.status(400).json("unable to create lesson");
+// 			})
+// 			.then(trx.commit)
+// 			.catch((err) => trx.rollback);
+// 	}).catch((err) => res.status(400).json("unable to create lesson"));
+// });
