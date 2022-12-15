@@ -289,23 +289,39 @@ app.get("/modal/courses", (req, res) => {
 });
 
 //todo: /image -> put -> user
-// app.put("/image", (req, res) => {
-// 	const { id } = req.body;
-
-// 	db("users")
-// 		.where("id", "=", id) //find the user with the id
-// 		.increment("score", 1) //increment the score by 1
-// 		.returning("score") //return the score of the user into the database
-// 		.then((score) => {
-// 			// catch error this way because .then() returns an empty array even when no user is present. It doesn't actually throw any error.
-// 			if (score.length) {
-// 				res.json(score[0]);
-// 			} else {
-// 				res.status(400).json("user has no score");
-// 			}
-// 		}) //use indexing because score is stored in a list; return to the font end. Following error is when the database itself is non-existent or disconnected
-// 		.catch((err) => res.status(400).json("connection failed"));
-// });
+//? expected input
+// {
+//     "textArr": ["hi", "hello"],
+//     "typeInput": "ilos", //! "ilos" or "tlas" or "ats" or "topics" or "remarks"
+//     "id":87, //! id of the course
+//     "mode":"delete", //! "delete" or "add" //? maye not be implemented
+//     "weeks":1
+// }
+//?
+app.put("/course/lessonplanner/update", (req, res) => {
+  const { textArr, typeInput, id, weeks } = req.body;
+  console.log(textArr, typeInput, id, weeks)
+  db("courseplanner")
+		.where("id",'=', id)
+		.andWhere("weeks", "=", weeks)
+    .update({
+      [typeInput]: textArr,
+    })
+		.returning([typeInput, 'weeks']) //return the score of the user into the database
+    .then((score) => {
+      console.log(score);
+			// catch error this way because .then() returns an empty array even when no user is present. It doesn't actually throw any error.
+			if (score.length) {
+				res.status(200).json(score[0]);
+			} else {
+				res.status(400).json("incorrect information");
+			}
+		}) //use indexing because score is stored in a list; return to the font end. Following error is when the database itself is non-existent or disconnected
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json("could not update")
+    });
+});
 
 //todo: assign a port to the server and cosnole a message if the server is running.
 
@@ -488,3 +504,24 @@ app.listen(6060, () => {
 // 	}).catch((err) => res.status(400).json("unable to delete lesson"));
 // });
 //--- previous delete
+
+//--------previious put/update method---
+// app.put("/course/lessonplanner/update", (req, res) => {
+// 	const { text, typeInput, id, mode, weeks } = req.body;
+// 	db("courseplanner")
+// 		.whereIn("id", id)
+// 		.andWhere("weeks", "=", weeks)
+// 		.where("id", "=", id) //find the user with the id
+// 		.update("score", 1) //increment the score by 1
+// 		.returning("score") //return the score of the user into the database
+// 		.then((score) => {
+// 			// catch error this way because .then() returns an empty array even when no user is present. It doesn't actually throw any error.
+// 			if (score.length) {
+// 				res.json(score[0]);
+// 			} else {
+// 				res.status(400).json("user has no score");
+// 			}
+// 		}) //use indexing because score is stored in a list; return to the font end. Following error is when the database itself is non-existent or disconnected
+// 		.catch((err) => res.status(400).json("connection failed"));
+// });
+//--------previious put/update method---
