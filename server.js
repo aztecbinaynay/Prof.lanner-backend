@@ -15,7 +15,7 @@ const coursecodes = require("./controllers/coursecodes.js");
 const db = knex({
 	client: "pg",
 	connection: {
-		connection:
+		postgresql:
 			"postgres:W2PwyXawDtm34hDfJVYn@containers-us-west-147.railway.app:5548/railway",
 		// host: "127.0.0.1", //localhost
 		// user: "postgres", //add your user name for the database here
