@@ -30,6 +30,10 @@ const app = express();
 app.use(express.json()); // to parse the body of the request
 app.use(cors()); // to allow cross origin resource sharing
 
+app.get("/", (req, res) => {
+	res.send("it is working");
+});
+
 //todo: /signin -> post = sucess/fail
 //! databases are important since if the server gets run again, we lose the data we sent with post since the user variable at the top of the file is reset.
 app.post("/signin", (req, res) => { signin.handleSignin(req, res, db, bcrypt)
