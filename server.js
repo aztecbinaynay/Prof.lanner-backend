@@ -78,8 +78,8 @@ app.put("/course/lessonplanner/update", (req, res) => {
 //todo: assign a port to the server and cosnole a message if the server is running.
 
 // const PORT = process.env.PORT;
-app.listen(6060, () => {
-	console.log(`Server is running on port 6060`, new Date());
+app.listen(process.env.PORT || 6060, () => {
+	console.log(`Server is running on port ${process.env.PORT}`, new Date());
 });
 
 // console.log(PORT);
