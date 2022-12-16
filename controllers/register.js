@@ -3,7 +3,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 	if (email.length == 0 || password.length == 0 || name.length == 0) {
 		return res
 			.status(400)
-			.json("your username or password or name or al three are empty");
+			.json("your username or password or name or all three are empty");
 	}
 	const hash = bcrypt.hashSync(password);
 	db.transaction((trx) => {
