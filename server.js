@@ -15,11 +15,13 @@ const coursecodes = require("./controllers/coursecodes.js");
 const db = knex({
 	client: "pg",
 	connection: {
-		host: "127.0.0.1", //localhost
-		user: "postgres", //add your user name for the database here
-		port: 5432, // add your port number here
-		password: "50239812", //add your correct password in here
-		database: "lessonplannerserver", //add your database name you created here
+		connection:
+			"postgres:W2PwyXawDtm34hDfJVYn@containers-us-west-147.railway.app:5548/railway",
+		// host: "127.0.0.1", //localhost
+		// user: "postgres", //add your user name for the database here
+		// port: 5432, // add your port number here
+		// password: "50239812", //add your correct password in here
+		// database: "lessonplannerserver", //add your database name you created here
 	},
 });
 
